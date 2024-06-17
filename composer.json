@@ -1,7 +1,7 @@
 {
-    "name": "symfony/acl-bundle",
+    "name": "skydreams/acl-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony AclBundle",
+    "description": "Symfony AclBundle fork - symfony 7.0 compatibile",
     "keywords": [],
     "homepage": "https://symfony.com",
     "license": "MIT",
@@ -20,7 +20,7 @@
         "ext-xml": "*",
         "symfony/dependency-injection": "^4.4|^5.0|^6.0|^7.0",
         "symfony/http-kernel": "^4.4|^5.0|^6.0|^7.0",
-        "symfony/security-acl": "^3.0",
+        "skydreams/security-acl": "*@dev",
         "symfony/security-bundle": "^4.4|^5.0|^6.0|^7.0"
     },
     "require-dev": {

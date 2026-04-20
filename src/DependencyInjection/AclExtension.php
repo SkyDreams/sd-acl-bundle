@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -14,32 +16,27 @@ namespace Symfony\Bundle\AclBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Security\Acl\Domain\PsrAclCache;
 
 /**
- * AclExtension.
- *
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class AclExtension extends Extension
+final class AclExtension extends Extension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $mainConfig = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($mainConfig, $configs);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('acl.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('acl.php');
 
         if (class_exists(Application::class)) {
-            $loader->load('console.xml');
+            $loader->load('console.php');
         }
 
         if (isset($config['cache']['id'])) {
@@ -61,18 +58,16 @@ class AclExtension extends Extension
 
         $container->getDefinition('security.acl.voter.basic_permissions')->addArgument($config['voter']['allow_if_object_identity_unavailable']);
 
-        // custom ACL provider
         if (isset($config['provider'])) {
             $container->setAlias('security.acl.provider', $config['provider']);
 
             return;
         }
 
-        // no provider configured
-        $loader->load('acl_dbal.xml');
+        $loader->load('acl_dbal.php');
 
         if (null !== $config['connection']) {
-            $container->setAlias('security.acl.dbal.connection', sprintf('doctrine.dbal.%s_connection', $config['connection']));
+            $container->setAlias('security.acl.dbal.connection', \sprintf('doctrine.dbal.%s_connection', $config['connection']));
         }
 
         $container
@@ -91,13 +86,5 @@ class AclExtension extends Extension
         $container->setParameter('security.acl.dbal.oid_table_name', $config['tables']['object_identity']);
         $container->setParameter('security.acl.dbal.oid_ancestors_table_name', $config['tables']['object_identity_ancestors']);
         $container->setParameter('security.acl.dbal.sid_table_name', $config['tables']['security_identity']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNamespace()
-    {
-        return 'http://symfony.com/schema/dic/acl';
     }
 }

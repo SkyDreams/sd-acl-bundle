@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -20,33 +22,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Security\Acl\Dbal\Schema;
 
 /**
- * Creates the tables required by the ACL system.
- *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
 #[AsCommand(name: 'acl:init', description: 'Creates ACL tables in the database')]
 final class InitAclCommand extends Command
 {
-    protected static $defaultName = 'acl:init';
-
-    private $connection;
-    private $schema;
-
-    public function __construct(Connection $connection, Schema $schema)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly Schema $schema,
+    ) {
         parent::__construct();
-
-        $this->connection = $connection;
-        $this->schema = $schema;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
-            ->setDescription('Creates ACL tables in the database')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command creates ACL tables in the database.
 
@@ -61,17 +51,15 @@ EOF
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
-            $this->schema->addToSchema($this->connection->getSchemaManager()->createSchema());
+            $schemaManager = $this->connection->createSchemaManager();
+            $this->schema->addToSchema($schemaManager->introspectSchema());
         } catch (SchemaException $e) {
             $output->writeln('Aborting: '.$e->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         foreach ($this->schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
@@ -80,6 +68,6 @@ EOF
 
         $output->writeln('ACL tables have been initialized successfully.');
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

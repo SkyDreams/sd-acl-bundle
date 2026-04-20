@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -15,17 +17,10 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * This class contains the configuration information.
- *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
-    /**
-     * Generates the configuration tree builder.
-     *
-     * @return TreeBuilder The tree builder
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $builder = new TreeBuilder('acl');
@@ -45,7 +40,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('prefix')->defaultValue('sf_acl_')->end()
                     ->end()
                     ->validate()
-                        ->ifTrue(static function (array $config): bool { return isset($config['id'], $config['pool']); })
+                        ->ifTrue(static fn (array $config): bool => isset($config['id'], $config['pool']))
                         ->thenInvalid('You cannot set both a cache service id and cache pool')
                     ->end()
                 ->end()

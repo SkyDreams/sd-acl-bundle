@@ -21,7 +21,7 @@
         "symfony/dependency-injection": "^7.0|^8.0",
         "symfony/http-kernel": "^7.0|^8.0",
         "skydreams/security-acl": "*@dev",
-        "symfony/security-bundle": "^7.0|^8.0",
+        "symfony/security-bundle": "^7.0|^8.0"
     },
     "require-dev": {
         "doctrine/doctrine-bundle": "^1.6.12|^2.0",

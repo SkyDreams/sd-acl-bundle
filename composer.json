@@ -30,7 +30,7 @@
         "symfony/console": "^7.0|^8.0",
         "symfony/framework-bundle": "^7.0|^8.0",
         "symfony/phpunit-bridge": "^7.0|^8.0",
-        "symfony/yaml": "^7.0|^8.0",
+        "symfony/yaml": "^7.0|^8.0"
     },
     "suggest": {
         "doctrine/doctrine-bundle": "To use the default dbal configuration"

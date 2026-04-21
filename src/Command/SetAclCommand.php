@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -25,32 +27,20 @@ use Symfony\Component\Security\Acl\Model\MutableAclProviderInterface;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 
 /**
- * Sets ACL for objects.
- *
  * @author Kévin Dunglas <kevin@les-tilleuls.coop>
  */
 #[AsCommand(name: 'acl:set', description: 'Sets ACL for objects')]
 final class SetAclCommand extends Command
 {
-    protected static $defaultName = 'acl:set';
-
-    private $provider;
-
-    public function __construct(MutableAclProviderInterface $provider)
+    public function __construct(private readonly MutableAclProviderInterface $provider)
     {
         parent::__construct();
-
-        $this->provider = $provider;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Sets ACL for objects')
-            ->setHelp(<<<EOF
+            ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command sets ACL.
 The ACL system must have been initialized with the <info>acl:init</info> command.
 
@@ -79,12 +69,8 @@ EOF
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Parse arguments
         $objectIdentities = [];
         $maskBuilder = new MaskBuilder();
         foreach ($input->getArgument('arguments') as $argument) {
@@ -97,7 +83,6 @@ EOF
             }
         }
 
-        // Build permissions mask
         $mask = $maskBuilder->get();
 
         $userOption = $input->getOption('user');
@@ -108,7 +93,6 @@ EOF
             throw new \InvalidArgumentException('A Role or a User must be specified.');
         }
 
-        // Create security identities
         $securityIdentities = [];
 
         if ($userOption) {
@@ -129,12 +113,10 @@ EOF
             }
         }
 
-        // Sets ACL
         foreach ($objectIdentities as $objectIdentity) {
-            // Creates a new ACL if it does not already exist
             try {
                 $this->provider->createAcl($objectIdentity);
-            } catch (AclAlreadyExistsException $e) {
+            } catch (AclAlreadyExistsException) {
             }
 
             $acl = $this->provider->findAcl($objectIdentity, $securityIdentities);
@@ -150,6 +132,6 @@ EOF
             $this->provider->updateAcl($acl);
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

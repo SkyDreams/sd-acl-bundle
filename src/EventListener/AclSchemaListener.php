@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -19,18 +21,14 @@ use Symfony\Component\Security\Acl\Dbal\Schema;
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class AclSchemaListener
+final class AclSchemaListener
 {
-    private $schema;
-
-    public function __construct(Schema $schema)
+    public function __construct(private readonly Schema $schema)
     {
-        $this->schema = $schema;
     }
 
-    public function postGenerateSchema(GenerateSchemaEventArgs $args)
+    public function postGenerateSchema(GenerateSchemaEventArgs $args): void
     {
-        $schema = $args->getSchema();
-        $this->schema->addToSchema($schema);
+        $this->schema->addToSchema($args->getSchema());
     }
 }
